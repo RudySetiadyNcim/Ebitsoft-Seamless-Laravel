@@ -11,6 +11,8 @@ use App\User;
 use DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use JWTAuth;
+use Validator;
 
 class UserController extends Controller
 {
@@ -44,25 +46,49 @@ class UserController extends Controller
         return $user;
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        $user = new User();
-        $data = $this->validate($request, [
-            'first_name' => 'required',
-            'last_name' => 'required',
-            'email_address' => 'required',
-            'mobile_number' => 'required',
-        ]);
-        $data['id'] = $id;
-        DB::beginTransaction();
-        $user->updateUser($data);
-        DB::commit();
-        return $user;
-    }
+        $data = $request->all();
+        $bearer = $request->header('Authorization');
+        $token = str_replace('Bearer ', '', $bearer);
 
-    public function show($id)
-    {
-        return User::find($id);
+        JWTAuth::setToken($token);
+        $user = JWTAuth::toUser();
+        if($user != null) {
+
+            $validator = Validator::make($data, [
+                'first_name' => 'required',
+                'last_name' => 'required',
+                'email_address' => 'required',
+                'mobile_number' => 'required',
+            ]);
+
+            if($validator->fails()) {
+                return response()
+                    ->json([
+                        'success' => false,
+                        'message' => 'Validation failed.',
+                        'errors' => $validator->errors()
+                    ], 422);
+            }
+
+            $userModel = new User();
+            $data['id'] = $user->id;
+            DB::beginTransaction();
+            $user = $userModel->updateUser($data);
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'user' => $user
+                ], 200);
+        }
+        else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorised'
+            ], 401);
+        }
     }
 
     public function sendPasswordResetEmail(Request $request) {

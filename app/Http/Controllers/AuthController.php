@@ -4,15 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use JWTAuth;
-use Tymon\JWTAuth\Exceptions\JWTException;
 use Validator;
 
 class AuthController extends Controller
 {
-    public function __construct()
-    {
-
-    }
 
     /**
      * Authenticate an user.
@@ -32,7 +27,7 @@ class AuthController extends Controller
         if($validator->fails()) {
             return response()
                 ->json([
-                    'code' => 1,
+                    'success' => false,
                     'message' => 'Validation failed.',
                     'errors' => $validator->errors()
                 ], 422);
@@ -44,30 +39,52 @@ class AuthController extends Controller
         if ($token) {
             JWTAuth::setToken($token);
             $user = JWTAuth::toUser();
-            return response()->json([
-                'user' => $user,
-                'token' => $token,
-                'success' => true
-            ]);
+            if($user != null) {
+                return response()->json([
+                    'success' => true,
+                    'user' => $user,
+                    'token' => $token,
+                ]);
+            }
+            else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorised'
+                ], 401);
+            }
         } else {
             return response()->json([
-                'status' => false,
-                'code' => 2, 
-                'message' => 'Invalid credentials.'
-            ], 401);
+                'success' => false,
+                'message' => 'Username or password is incorrect'
+            ], 400);
         }
     }
 
-    /**
-     * Get the user by token.
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function getUser(Request $request)
+    // somewhere in your controller
+    public function getAuthenticatedUser()
     {
-        JWTAuth::setToken($request->input('token'));
-        $user = JWTAuth::toUser();
-        return response()->json($user);
+        try {
+
+            if (! $user = JWTAuth::parseToken()->authenticate()) {
+                return response()->json(['user_not_found'], 404);
+            }
+
+        } catch (TokenExpiredException $e) {
+
+            return response()->json(['token_expired'], $e->getStatusCode());
+
+        } catch (TokenInvalidException $e) {
+
+            return response()->json(['token_invalid'], $e->getStatusCode());
+
+        } catch (JWTException $e) {
+
+            return response()->json(['token_absent'], $e->getStatusCode());
+
+        }
+
+        // the token is valid and we have found the user via the sub claim
+        return response()->json(compact('user'));
     }
+
 }

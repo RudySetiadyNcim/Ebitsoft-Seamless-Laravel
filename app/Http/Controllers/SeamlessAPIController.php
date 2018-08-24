@@ -39,7 +39,6 @@ class SeamlessAPIController extends Controller
             'user' => $currentUser,
             'game' => $game
         ];
-
         $apiHistory = APIHistory::create([
             'api' => 'auth',
             'req' => json_encode($body),
@@ -134,14 +133,13 @@ class SeamlessAPIController extends Controller
                                 'date' => $now->toDateString(),
                                 'remarks' => $this->getRemarks($product_id),
                                 'total_wager' => 1,
-                                'turnover' => $amount,
+                                'turnover' => 0,
                                 'debit_credit' => -$amount,
                                 'commission' => 0
                             ]);
                         }
                         else {
                             $user_betting_history_detail->total_wager = $user_betting_history_detail->total_wager + 1;
-                            $user_betting_history_detail->turnover = $user_betting_history_detail->turnover + $amount;
                             $user_betting_history_detail->debit_credit = $user_betting_history_detail->debit_credit - $amount;
                             $user_betting_history_detail->save();
                         }
@@ -270,13 +268,13 @@ class SeamlessAPIController extends Controller
                                 'date' => $now->toDateString(),
                                 'remarks' => $this->getRemarks($product_id),
                                 'total_wager' => 1,
-                                'turnover' => $amount,
+                                'turnover' => 0,
                                 'debit_credit' => $amount,
                                 'commission' => 0
                             ]);
                         }
                         else {
-                            $user_betting_history_detail->turnover = $user_betting_history_detail->turnover + $amount;
+                            $user_betting_history_detail->turnover = $user_betting_history_detail->turnover + abs($lastDebit->amount - $amount);
                             $user_betting_history_detail->debit_credit = $user_betting_history_detail->debit_credit + $amount;
                             $user_betting_history_detail->save();
                         }
@@ -347,6 +345,7 @@ class SeamlessAPIController extends Controller
         $table_id = $request->input('table_id');
         $game_identifier = $request->input('game_identifier');
         $now = Carbon::now();
+        $remarks = 'Tips';
         $apiHistory = APIHistory::create([
             'api' => 'tips',
             'req' => json_encode($request->all()),
@@ -394,21 +393,21 @@ class SeamlessAPIController extends Controller
                     // Begin Creating User Betting History Detail Report
                     $user_betting_history_detail = UserBettingHistoryDetail::where('user_id', $user->id)
                         ->where('date', $now->toDateString())
-                        ->where('remarks', $this->getRemarks($product_id))
+                        ->where('remarks', $remarks)
                         ->first();
                     if($user_betting_history_detail == null) {
                         UserBettingHistoryDetail::create([
                             'user_id' => $user->id,
                             'date' => $now->toDateString(),
-                            'remarks' => $this->getRemarks($product_id),
+                            'remarks' => $remarks,
                             'total_wager' => 0,
                             'turnover' => 0,
-                            'debit_credit' => 0,
-                            'commission' => $amount
+                            'debit_credit' => -$amount,
+                            'commission' => 0,
                         ]);
                     }
                     else {
-                        $user_betting_history_detail->commission = $user_betting_history_detail->commission - $amount;
+                        $user_betting_history_detail->debit_credit = $user_betting_history_detail->debit_credit - $amount;
                         $user_betting_history_detail->save();
                     }
                     // End Creating User Betting History Detail Report

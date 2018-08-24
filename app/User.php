@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
@@ -74,8 +75,8 @@ class User extends Authenticatable implements JWTSubject
         $user = $this->find($data['id']);
         $user->first_name = $data['first_name'];
         $user->last_name = $data['last_name'];
-        $this->email_address = $data['email_address'];
-        $this->mobile_number = $data['mobile_number'];
+        $user->email_address = $data['email_address'];
+        $user->mobile_number = $data['mobile_number'];
         $user->save();
         return $user;
     }
