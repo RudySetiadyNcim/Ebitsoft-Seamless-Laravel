@@ -17,6 +17,7 @@ Route::post('/authenticate', 'AuthController@authenticate');
 Route::get('/user', 'AuthController@getAuthenticatedUser');
 Route::put('/user', 'UserController@update');
 Route::post('/user/register', 'UserController@register');
+Route::get('/user/user_name/{username}', 'UserController@findUsername');
 Route::post('/user/send-password-reset-email', 'UserController@sendPasswordResetEmail');
 Route::post('/user/reset-password/{token}', 'UserController@resetPassword');
 Route::post('/reset-password/find-by-email-and-token', 'UserResetPasswordController@findByEmailAndToken');
@@ -31,6 +32,7 @@ Route::post('/cancel', 'SeamlessAPIController@cancel');
 Route::post('/tips', 'SeamlessAPIController@tips');
 Route::post('/get-current-balance', 'SeamlessAPIController@getCurrentBalance');
 
+Route::get('/balance', 'BalanceController@balance');
 Route::post('/balance/deposit', 'BalanceController@deposit');
 Route::post('/balance/withdraw', 'BalanceController@withdraw');
 

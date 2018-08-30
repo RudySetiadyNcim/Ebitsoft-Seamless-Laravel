@@ -22,6 +22,8 @@ class CreateUsersTable extends Migration
             $table->string('country');
             $table->string('currency');
             $table->string('language');
+            $table->boolean('is_global_admin');
+            $table->string('current_role');
             $table->string('password')->nullable();
             $table->string('email_address')->unique();
             $table->string('mobile_number')->unique();

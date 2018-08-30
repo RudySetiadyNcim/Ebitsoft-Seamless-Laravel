@@ -24,7 +24,7 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $fillable = [
-        'username', 'first_name', 'last_name', 'balance', 'country', 'currency', 'language', 'email_address', 'mobile_number'
+        'username', 'first_name', 'last_name', 'balance', 'country', 'currency', 'language', 'email_address', 'mobile_number', 'is_global_admin', 'current_role'
     ];
 
     /**
@@ -65,6 +65,8 @@ class User extends Authenticatable implements JWTSubject
         $this->currency = $data['currency'];
         $this->language = $data['language'];
         $this->password = $data['password'];
+        $this->is_global_admin = $data['is_global_admin'];
+        $this->current_role = $data['current_role'];
         $this->email_address = $data['email_address'];
         $this->mobile_number = $data['mobile_number'];
         $this->save();

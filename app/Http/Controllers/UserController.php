@@ -169,4 +169,20 @@ class UserController extends Controller
         Mail::to($email)->send(new ResetPasswordDoneMail($first_name, $last_name));
     }
 
+    public function findUsername(Request $request, $username)
+    {
+        $user = User::where('username', $username)->first();
+        if($user != null) {
+            return response()->json([
+                'exists' => true,
+                'username' => $user->username
+            ]);
+        }
+        else {
+            return response()->json([
+                'exists' => false
+            ]);
+        }
+    }
+
 }

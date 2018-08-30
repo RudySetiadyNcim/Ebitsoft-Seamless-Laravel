@@ -21,7 +21,8 @@ class ResetPasswordMail extends Mailable
     public function __construct($email, $token, $first_name, $last_name)
     {
         $this->name = trim($first_name . ' '. $last_name);
-        $this->url = 'http://localhost:4200/#/reset-password/'.$email.'/'.$token;
+
+        $this->url = env('APP_URL').'/#/reset-password/'.$email.'/'.$token;
     }
 
     /**

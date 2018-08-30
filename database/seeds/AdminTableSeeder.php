@@ -1,9 +1,9 @@
 <?php
 
-use Illuminate\Database\Seeder;
 use App\User;
+use Illuminate\Database\Seeder;
 
-class UsersTableSeeder extends Seeder
+class AdminTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -24,8 +24,22 @@ class UsersTableSeeder extends Seeder
                 'country' => 'ID',
                 'currency' => 'IDR',
                 'language' => 'id',
-                'is_global_admin' => false,
-                'current_role' => 'user',
+                'is_global_admin' => true,
+                'current_role' => 'owner',
+                'password' => Hash::make('colorphotograph'),
+                'email_address' => $faker->email,
+                'mobile_number' => $faker->phoneNumber
+            ],
+            [
+                'username' => $faker->userName,
+                'first_name' => $faker->firstName,
+                'last_name' => $faker->lastName,
+                'balance' => 0,
+                'country' => 'ID',
+                'currency' => 'IDR',
+                'language' => 'id',
+                'is_global_admin' => true,
+                'current_role' => 'administrator',
                 'password' => Hash::make('colorphotograph'),
                 'email_address' => $faker->email,
                 'mobile_number' => $faker->phoneNumber

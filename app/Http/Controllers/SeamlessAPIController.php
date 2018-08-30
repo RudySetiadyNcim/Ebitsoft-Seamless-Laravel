@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use JWTAuth;
 
 class SeamlessAPIController extends Controller
 {
@@ -28,35 +29,55 @@ class SeamlessAPIController extends Controller
     }
 
     public function auth(Request $request) {
-        $currentUser = $request->input('user');
-        $game = $request->input('game');
-        $token = config('app.token');
-        $hostname = config('app.hostname');
-        $request_url = $hostname.'/auth';
-        $client = new Client();
-        $body = [
-            'token' => $token,
-            'user' => $currentUser,
-            'game' => $game
-        ];
-        $apiHistory = APIHistory::create([
-            'api' => 'auth',
-            'req' => json_encode($body),
-        ]);
-        $json = $client->post($request_url, [
-            'body' => json_encode($body)
-        ])->getBody()->getContents();
-        $apiHistory->res = $json;
-        $apiHistory->save();
-        $obj = json_decode($json);
-        if($obj->{'success'} == 1) {
-            UserDetail::updateOrCreate([
-                'user_id' => $currentUser['id'],
+
+        $bearer = $request->header('Authorization');
+        $token = str_replace('Bearer ', '', $bearer);
+
+        JWTAuth::setToken($token);
+        $user = JWTAuth::toUser();
+
+        if($user != null) {
+            $user = User::find($user->id);
+            $game = $request->input('game');
+            $token = config('app.token');
+            $hostname = config('app.hostname');
+            $request_url = $hostname . '/auth';
+            $client = new Client();
+            $body = [
                 'token' => $token,
-                'server_user_id' => $obj->{'userId'},
-                'server_username' => $obj->{'username'}
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->username,
+                    'first_name' => $user->first_name,
+                    'last_name' => $user->last_name,
+                    'balance' => $user->balance,
+                    'country' => $user->country,
+                    'currency' => $user->currency,
+                    'language' => $user->language,
+                ],
+                'game' => $game
+            ];
+            $apiHistory = APIHistory::create([
+                'api' => 'auth',
+                'req' => json_encode($body),
             ]);
+            $json = $client->post($request_url, [
+                'body' => json_encode($body)
+            ])->getBody()->getContents();
+            $apiHistory->res = $json;
+            $apiHistory->save();
+            $obj = json_decode($json);
+            if ($obj->{'success'} == 1) {
+                UserDetail::updateOrCreate([
+                    'user_id' => $user->id,
+                    'token' => $token,
+                    'server_user_id' => $obj->{'userId'},
+                    'server_username' => $obj->{'username'}
+                ]);
+            }
+
         }
+
         return response()->json($json);
     }
 

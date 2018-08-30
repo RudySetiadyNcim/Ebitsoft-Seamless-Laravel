@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             CountriesTableSeeder::class,
             CurrenciesTableSeeder::class,
             LanguagesTableSeeder::class,
+            AdminTableSeeder::class,
             UsersTableSeeder::class,
         ]);
 
