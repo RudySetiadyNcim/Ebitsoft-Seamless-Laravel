@@ -25,7 +25,7 @@ class AdminTableSeeder extends Seeder
                 'currency' => 'IDR',
                 'language' => 'id',
                 'is_global_admin' => true,
-                'current_role' => 'owner',
+                'current_role' => 'Owner',
                 'password' => Hash::make('colorphotograph'),
                 'email_address' => $faker->email,
                 'mobile_number' => $faker->phoneNumber
@@ -39,7 +39,7 @@ class AdminTableSeeder extends Seeder
                 'currency' => 'IDR',
                 'language' => 'id',
                 'is_global_admin' => true,
-                'current_role' => 'administrator',
+                'current_role' => 'Administrator',
                 'password' => Hash::make('colorphotograph'),
                 'email_address' => $faker->email,
                 'mobile_number' => $faker->phoneNumber

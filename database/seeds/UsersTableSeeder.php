@@ -25,7 +25,7 @@ class UsersTableSeeder extends Seeder
                 'currency' => 'IDR',
                 'language' => 'id',
                 'is_global_admin' => false,
-                'current_role' => 'user',
+                'current_role' => 'User',
                 'password' => Hash::make('colorphotograph'),
                 'email_address' => $faker->email,
                 'mobile_number' => $faker->phoneNumber

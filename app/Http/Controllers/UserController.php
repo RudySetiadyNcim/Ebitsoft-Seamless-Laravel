@@ -18,10 +18,35 @@ class UserController extends Controller
 {
     use Auth;
 
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::all();
-        return $users;
+        $data = $this->validate($request, [
+            'sort' => 'required',
+            'order' => 'required',
+            'page' => 'required',
+            'pageSize' => 'required',
+        ]);
+
+        $sort = $data['sort'];
+        $order = $data['order'];
+        $page = $data['page'];
+        $pageSize = (int)$data['pageSize'];
+
+        $skip = ($page - 1) * $pageSize;
+        $take = $pageSize;
+
+        $users = DB::table('users');
+        if($sort != 'undefined' && $order != null) {
+            $users = $users->orderBy($sort, $order);
+        }
+
+        $total_count = $users->count();
+        $users = $users->skip($skip)->take($take)->get();
+
+        return response()->json([
+            'items' => $users,
+            'total_count' => $total_count
+        ], 200);
     }
 
     public function register(Request $request)

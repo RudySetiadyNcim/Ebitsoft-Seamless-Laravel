@@ -39,3 +39,7 @@ Route::post('/balance/withdraw', 'BalanceController@withdraw');
 Route::get('/countries', 'CountryController@index');
 Route::get('/currencies', 'CurrencyController@index');
 Route::get('/languages', 'LanguageController@index');
+
+Route::prefix('admin')->group(function() {
+    Route::get('users', 'UserController@index');
+});
